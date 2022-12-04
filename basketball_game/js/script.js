@@ -1,13 +1,22 @@
-let comScore = 0;
-let comPercent2 = 0.5;
-let comPercent3 = 0.33;
+// ! 컴퓨터 오브젝트
+const computer  = {
+    score: 0,
+    percent2: 0.5,
+    percent3: 0.33
+}
 
-let userScore = 0;
-let userPercent2 = 0.5;
-let userPercent3 = 0.33;
+// ! 사용자 오브젝트
+const user = {
+    score: 0,
+    percent2: 0.5,
+    percent3: 0.33
+}
 
-let isComputerTurn = true;
-let shotsLeft = 15;
+// ! 게임 오브젝트
+const game = {
+    isComputerTurn: true,
+    shotsLeft: 15
+}
 
 const showText = (str) => {
     let textElem = document.getElementById('text');
@@ -15,17 +24,17 @@ const showText = (str) => {
 }
 
 const updateComputerScore = (score) => {
-    comScore += score;
+    computer.score += score;
 
     let comScoreElem = document.getElementById('computer-score');
-    comScoreElem.textContent = comScore;
+    comScoreElem.textContent = computer.score;
 }
 
 const updateUserScore = (score) => {
-    userScore += score;
+    user.score += score;
 
     let userScoreElem = document.getElementById('user-score');
-    userScoreElem.textContent = userScore;
+    userScoreElem.textContent = user.score;
 }
 
 const disableComputerButtons = (flag) => {
@@ -43,28 +52,29 @@ const disableUserButtons = (flag) => {
 }
 
 const updateAI = () => {
-    let diff = userScore - comScore;
+    let diff = user.score - computer.score;
 
     if (diff >= 10) {
-        comPercent2 = 0.7;
-        comPercent3 = 0.43;
+        computer.percent2 = 0.7;
+        computer.percent3 = 0.43;
     } else if (diff >= 6) {
-        comPercent2 = 0.6;
-        comPercent3 = 0.38;
+        computer.percent2 = 0.6;
+        computer.percent3 = 0.38;
     } else if (diff <= -10) {
-        comPercent2 = 0.3;
-        comPercent3 = 0.23;
+        computer.percent2 = 0.3;
+        computer.percent3 = 0.23;
     } else if (diff <= -6) {
-        comPercent2 = 0.4;
-        comPercent3 = 0.28;
+        computer.percent2 = 0.4;
+        computer.percent3 = 0.28;
     } else {
-        comPercent2 = 0.5;
-        comPercent3 = 0.33;
+        computer.percent2 = 0.5;
+        computer.percent3 = 0.33;
     }
 }
 
+// * 컴퓨터 버튼 클릭 이벤트
 const onComputerShoot = () => {
-    if (!isComputerTurn) return;
+    if (!game.isComputerTurn) return;
 
     updateAI();
 
@@ -75,61 +85,46 @@ const onComputerShoot = () => {
 
     let shootType = Math.random() < 0.5 ? 2 : 3;
 
-    if (shootType === 2) {
-        if (Math.random() < comPercent2) {
-            showText('컴퓨터가 2점슛을 성공시켰습니다!');
-            updateComputerScore(2);
-        } else showText('컴퓨터가 2점슛을 실패했습니다.');
-    } else {
-        if (Math.random() < comPercent3) {
-            showText('컴퓨터가 3점슛을 성공시켰습니다!');
-            updateComputerScore(3);
-        }
-        else showText('컴퓨터가 3점슛을 실패했습니다.');
+    if (Math.random() < computer['percent' + shootType]) {
+        showText(`컴퓨터가 ${shootType}점슛을 성공시켰습니다!`);
+        updateComputerScore(shootType);
     }
 
-    isComputerTurn = false;
+    game.isComputerTurn = false;
     disableComputerButtons(true);
     disableUserButtons(false);
 }
 
+// * 유저 버튼 클릭 이벤트
 const onUserShoot = (shootType) => {
-    if(isComputerTurn) return;
+    if(game.isComputerTurn) return;
 
     let userScoreElem = document.getElementById('user-score');
 
     let computerButtons = document.getElementsByClassName('btn-computer');
     let userButtons = document.getElementsByClassName('btn-user');
 
-    if (shootType === 2) {
-        if (Math.random() < userPercent2) {
-            showText('2점슛이 성공했습니다!');
-            updateUserScore(2);
-        } else showText('2점슛이 실패했습니다.');
+    if (Math.random() < user['percent' + shootType]) {
+        showText(`${shootType}점슛이 성공했습니다!`);
+        updateUserScore(shootType);
     } else {
-        if (Math.random() < userPercent3) {
-            showText('3점슛이 성공했습니다!');
-            updateUserScore(3);
-        }
-        else showText('3점슛이 실패했습니다.')
+        showText(`${shootType}점슛이 실패했습니다.`)
     }
 
-    shotsLeft--;
+    game.shotsLeft--;
 
     let shotsLeftElem = document.getElementById('shots-left');
-    shotsLeftElem.textContent = shotsLeft;
+    shotsLeftElem.textContent = game.shotsLeft;
 
-    if (shotsLeft === 0) {
-        if (userScore > comScore) showText('승리했습니다!');
-        else if (userScore < comScore) showText('아쉽게도 졌습니다..');
+    if (game.shotsLeft === 0) {
+        if (user.score > computer.score) showText('승리했습니다!');
+        else if (user.score < computer.score) showText('아쉽게도 졌습니다..');
         else showText('비겼습니다.')
 
-        computerButtons[0].disabled = true;
-        for (let i = 0; i < userButtons.length; i++) {
-            userButtons[i].disabled = true;
-        }
+        disableComputerButtons(true);
+        disableUserButtons(true);
     } else {
-        isComputerTurn = true;
+        game.isComputerTurn = true;
         disableComputerButtons(false);
         disableUserButtons(true);
     }
